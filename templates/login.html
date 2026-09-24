@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        :root {
+            --bg-body: #f4f4f9;
+            --bg-container: #ffffff;
+            --text-main: #333333;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-body: #121212;
+                --bg-container: #1e1e1e;
+                --text-main: #e0e0e0;
+            }
+        }
+
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: var(--bg-body); color: var(--text-main); transition: 0.3s; } 
+        .container { max-width: 400px; margin: auto; background-color: var(--bg-container); padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🔒 Admin Login</h2>
+        {% if error %}
+        <p style="color: #dc3545; font-weight: bold;">{{ error }}</p>
+        {% endif %}
+        <form action="{{ url_for('login') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="password" name="password" placeholder="Passwort" required style="padding: 10px; width: 90%; margin-bottom: 10px;">
+            <button type="submit" style="padding: 10px; width: 95%; background: #007bff; color: white; border: none;">Einloggen</button>
+        </form>
+        <br><a href="{{ url_for('index') }}">Zurück zur Übersicht</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>WG Downloads</title>
+</head>
+<body>
+    <h1>Dateien für die Hausgemeinschaft</h1>
+    
+    <ul>
+        {% for file in files %}
+            <li>
+                <a href="/downloads/{{ file }}">{{ file }}</a>
+            </li>
+        {% else %}
+            <li>Aktuell sind keine Dateien verfügbar.</li>
+        {% endfor %}
+    </ul>
+    
+    <a href="/">Zurück zur Druckübersicht</a>
+</body>
+</html>

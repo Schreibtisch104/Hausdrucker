@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Monatliche Abrechnung</title>
+    <style>
+        :root {
+            --bg-body: #f4f4f9;
+            --bg-container: #ffffff;
+            --text-main: #333333;
+            --border-color: #dddddd;
+            --bg-table-head: #f2f2f2;
+            --bg-box: #e9ecef;
+            --input-bg: #ffffff;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-body: #121212;
+                --bg-container: #1e1e1e;
+                --text-main: #e0e0e0;
+                --border-color: #444444;
+                --bg-table-head: #2c2c2c;
+                --bg-box: #2a2d30;
+                --input-bg: #2c2c2c;
+            }
+        }
+
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: var(--bg-body); color: var(--text-main); transition: 0.3s; } 
+        .container { max-width: 800px; margin: auto; background-color: var(--bg-container); padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; } 
+        th, td { border: 1px solid var(--border-color); padding: 10px; text-align: left; } 
+        th { background-color: var(--bg-table-head); }
+        .filter-box { background-color: var(--bg-box); padding: 15px; border-radius: 6px; margin-bottom: 20px; }
+        select { padding: 8px; font-size: 16px; margin-left: 10px; background-color: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 4px; }
+        .total { font-size: 1.2em; font-weight: bold; text-align: right; margin-top: 20px; color: #d9534f; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('index') }}" style="color: #666; text-decoration: none;">⬅ Zurück zur Übersicht</a>
+        <h2>📊 Monatliche Abrechnung</h2>
+
+        <div class="filter-box" style="display: flex; justify-content: space-between; align-items: center;">
+            <form method="GET" action="{{ url_for('billing') }}" style="margin: 0;">
+                <label for="month"><b>Monat auswählen:</b></label>
+                <select name="month" id="month" onchange="this.form.submit()">
+                    {% for m in months %}
+                        <option value="{{ m['month_val'] }}" {% if m['month_val'] == selected_month %}selected{% endif %}>
+                            {{ m['month_val'] }}
+                        </option>
+                    {% else %}
+                        <option value="">Keine Daten vorhanden</option>
+                    {% endfor %}
+                </select>
+            </form>
+            
+            {% if stats %}
+                {% if session.logged_in %}
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    
+                    {% if is_billed %}
+                        <span style="color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; padding: 10px 15px; border-radius: 4px; font-weight: bold; font-size: 0.9em;">
+                            ✅ Monat abgerechnet
+                        </span>
+                    {% else %}
+                        <form action="{{ url_for('mark_billed') }}" method="POST" style="margin: 0;" onsubmit="return confirm('Soll der Monat {{ selected_month }} wirklich als abgerechnet markiert werden? Dies startet unwiderruflich die 1-monatige Löschfrist für die Detailnachweise.');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="month" value="{{ selected_month }}">
+                            <button type="submit" style="background-color: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9em;">
+                                📅 Monat abgerechnet
+                            </button>
+                        </form>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('download_pdf', month=selected_month) }}" style="background: #007bff; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 0.9em;">
+                        📥 PDF Herunterladen
+                    </a>
+                    
+                </div>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <table>
+            <tr><th>Nutzer</th><th>Seiten (Gesamt)</th><th>Kosten (€)</th></tr>
+            {% for row in stats %}
+            <tr>
+                <td><b>{{ row['name'] }}</b></td>
+                <td>{{ row['total_pages'] }}</td>
+                <td>{{ "%.2f"|format(row['total_cost']) }} €</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="3" style="text-align: center;">In diesem Monat wurden keine Druckaufträge gefunden.</td></tr>
+            {% endfor %}
+        </table>
+
+        {% if stats %}
+        <div class="total">
+            Gesamtsumme aller Nutzer: {{ "%.2f"|format(total_cost) }} €
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

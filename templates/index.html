@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Print Server Admin</title>
+    <style>
+        :root {
+            --bg-body: #f4f4f9;
+            --bg-container: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --border-color: #dddddd;
+            --input-bg: #ffffff;
+            --link-color: #007bff;
+            
+            /* NEU: Farben für Warnungen (Gelb) und Alarm (Rot) */
+            --bg-warning: #fff3cd;
+            --border-warning: #ffeeba;
+            --text-warning: #856404;
+            
+            --bg-danger: #f8d7da;
+            --border-danger: #dc3545;
+            --text-danger: #721c24;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-body: #121212;
+                --bg-container: #1e1e1e;
+                --text-main: #e0e0e0;
+                --text-muted: #aaaaaa;
+                --border-color: #444444;
+                --input-bg: #2c2c2c;
+                --link-color: #66b2ff;
+                
+                /* NEU: Dunkle, augenschonende Farben für Warnungen und Alarme */
+                --bg-warning: #332701;
+                --border-warning: #664d03;
+                --text-warning: #ffda6a;
+                
+                --bg-danger: #2c0b0e;
+                --border-danger: #a71d2a;
+                --text-danger: #ea868f;
+            }
+        }
+
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: var(--bg-body); color: var(--text-main); transition: 0.3s; } 
+        .container { max-width: 700px; margin: auto; background-color: var(--bg-container); padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); } 
+        li { padding: 10px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; } 
+        
+        /* Inputs nutzen jetzt automatisch die Variablen */
+        input { padding: 8px; margin-right: 5px; background-color: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 4px; } 
+        button { padding: 8px 15px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        a { color: var(--link-color); }
+        
+        /* NEU: Eigene Klassen für die speziellen Boxen */
+        .alert-box {
+            background-color: var(--bg-danger);
+            color: var(--text-danger);
+            padding: 15px;
+            border-left: 5px solid var(--border-danger);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .warning-box {
+            background-color: var(--bg-warning);
+            color: var(--text-warning);
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-warning);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
+            {% if session.logged_in %}
+                <span style="color: #28a745; font-weight: bold; margin-right: 15px;">🔓 Als Admin angemeldet</span>
+                <a href="{{ url_for('logout') }}" style="background-color: #dc3545; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                    Logout
+                </a>
+            {% else %}
+                <a href="{{ url_for('login') }}" style="background-color: #007bff; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                    🔒 Admin Login
+                </a>
+            {% endif %}
+        </div>
+        
+        <h1 style="margin-top: 0;">🖨️ Print Server</h1>
+
+        {% if session.logged_in and has_alert %}
+        <div class="alert-box">
+            <span>⚠️ ALARM: Es wurden kritische Dokumente im aktuellen Monat gedruckt!</span>
+            <a href="{{ url_for('admin_details') }}" style="background-color: #dc3545; color: white; padding: 8px 12px; text-decoration: none; border-radius: 4px; font-size: 0.9em;">
+                🔍 Details prüfen
+            </a>
+        </div>
+        {% endif %}
+        
+        <div style="margin-bottom: 20px; display: flex; gap: 15px; align-items: center;">
+            <a href="{{ url_for('billing') }}" style="font-weight: bold; text-decoration: none; font-size: 1.1em;">
+                📊 Zur monatlichen Abrechnung ➔
+            </a>
+            
+            {% if session.logged_in %}
+            <a href="/admin_details" style="padding: 6px 12px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 0.9em;">
+                🛠️ Nachweis (Details)
+            </a>
+            {% endif %}
+        </div>
+        
+        {% if session.logged_in %}
+        <div class="warning-box">
+            <form action="{{ url_for('update_settings') }}" method="POST" style="display: flex; align-items: center; gap: 10px; margin: 0;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <strong>💰 Preis pro Seite anpassen:</strong>
+                <input type="number" name="price_per_page" step="0.01" value="{{ price }}" style="width: 80px; margin: 0;">
+                <button type="submit" style="background: #856404; font-size: 0.9em;">Speichern</button>
+            </form>
+        </div>
+        {% else %}
+        <p><i>Aktueller Druckpreis: {{ price }} € pro Seite</i></p>
+        {% endif %}
+        
+        <h2>Registrierte Nutzer</h2>
+        <ul style="list-style: none; padding: 0;">
+            {% for user in users %}
+                <li style="{% if user['status'] == 'blocked' %}opacity: 0.7; background-color: var(--bg-warning); padding: 10px; border-radius: 4px;{% endif %}">
+                    <span>
+                        {% if user['status'] == 'blocked' %}⛔ <s>{% endif %}
+                        <b>{{ user['name'] }}</b> (Jg: {{ user['year'] }}, Raum: {{ user['room'] }})
+                        {% if user['status'] == 'blocked' %}</s> <span style="color: var(--text-warning); font-weight: bold;">(GESPERRT)</span>{% endif %}
+                    </span>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <a href="{{ url_for('user_profile', user_id=user['id']) }}" style="font-weight: bold; text-decoration: none;">Profil ➔</a>
+                        
+                        {% if session.logged_in %}
+                        <form action="{{ url_for('toggle_block', user_id=user['id']) }}" method="POST" style="margin: 0;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" style="background: {% if user['status'] == 'blocked' %}#28a745{% else %}#ffc107{% endif %}; color: {% if user['status'] == 'blocked' %}white{% else %}black{% endif %}; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-weight: bold;">
+                                {% if user['status'] == 'blocked' %}🔓 Entsperren{% else %}⛔ Sperren{% endif %}
+                            </button>
+                        </form>
+
+                        <form action="{{ url_for('delete_user', user_id=user['id']) }}" method="POST" onsubmit="return confirm('Möchtest du {{ user['name'] }} wirklich löschen? Der Nutzer wird für 6 Monate archiviert (für die Abrechnung) und dann gelöscht.');" style="margin: 0;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em;">🗑️ Löschen</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </li>
+            {% else %}
+                <li style="color: var(--text-muted);">Keine Nutzer gefunden.</li>
+            {% endfor %}
+        </ul>
+
+        {% if session.logged_in %}
+        <hr style="margin-top: 30px; border: 0; border-top: 1px solid var(--border-color);">
+        <h2>Neuen Nutzer anlegen</h2>
+        <form action="{{ url_for('add_user') }}" method="POST" style="display: flex; gap: 5px; margin-bottom: 30px;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="text" name="name" placeholder="Nachname, Vorname" required style="flex: 2;">
+            <input type="text" name="year" placeholder="Jahrgang (z.B. 2026)" style="flex: 1;">
+            <input type="text" name="room" placeholder="Raum (z.B. 8/200)" style="flex: 1;">
+            <button type="submit" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">+ Anlegen</button>
+        </form>
+        {% endif %}
+
+        <div style="display: flex; justify-content: space-between; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color); font-size: 0.95em;">
+            <a href="{{ url_for('setup') }}" style="color: var(--text-muted); text-decoration: none;">
+                ℹ️ Hilfe: Wie verbinde ich meinen PC mit dem Drucker?
+            </a>
+            <a href="{{ url_for('terms') }}" style="color: var(--text-muted); text-decoration: none;">
+                📜 Nutzungsbedingungen & Datenschutz
+            </a> 
+        </div>
+        
+    </div>
+</body>
+</html>

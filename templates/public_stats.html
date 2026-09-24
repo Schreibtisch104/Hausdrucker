@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Öffentliche Abrechnung</title>
+    <style>
+        :root {
+            --bg-body: #ffffff;
+            --text-main: #333333;
+            --border-color: #cccccc;
+            --bg-table-head: #f4f4f4;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-body: #121212;
+                --text-main: #e0e0e0;
+                --border-color: #444444;
+                --bg-table-head: #2c2c2c;
+            }
+        }
+
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: var(--bg-body); color: var(--text-main); transition: 0.3s; }
+        table { border-collapse: collapse; width: 50%; max-width: 600px; }
+        th, td { border: 1px solid var(--border-color); padding: 10px; text-align: left; }
+        th { background-color: var(--bg-table-head); }
+    </style>
+</head>
+<body>
+    <h2>Monatliche Abrechnung</h2>
+    <table>
+        <tr>
+            <th>Nutzer</th>
+            <th>Seiten</th>
+            <th>Kosten</th>
+        </tr>
+        {% for row in stats %}
+        <tr>
+            <td>{{ row.name }}</td>
+            <td>{{ row.total_pages }}</td>
+            <td>{{ "%.2f"|format(row.total_cost) }}€</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

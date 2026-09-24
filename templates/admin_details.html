@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin-Nachweis</title>
+    <style>
+        :root {
+            --bg-body: #f4f4f9;
+            --bg-container: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --border-color: #cccccc;
+            --bg-table-head: #333333;
+            --text-table-head: #ffffff;
+            --bg-box: #e9ecef;
+            --input-bg: #ffffff;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-body: #121212;
+                --bg-container: #1e1e1e;
+                --text-main: #e0e0e0;
+                --text-muted: #aaaaaa;
+                --border-color: #444444;
+                --bg-table-head: #111111;
+                --text-table-head: #e0e0e0;
+                --bg-box: #2a2d30;
+                --input-bg: #2c2c2c;
+            }
+        }
+
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: var(--bg-body); color: var(--text-main); transition: 0.3s; }
+        .container { max-width: 95%; margin: auto; background-color: var(--bg-container); padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        table { border-collapse: collapse; width: 100%; margin-top: 15px; table-layout: fixed; }
+        th, td { border: 1px solid var(--border-color); padding: 8px; text-align: left; overflow-wrap: break-word; word-break: break-all; }
+        th:nth-child(1) { width: 10%; } 
+        th:nth-child(2) { width: 14%; } 
+        th:nth-child(3) { width: 50%; } 
+        th:nth-child(4) { width: 6%; }  
+        th:nth-child(5) { width: 8%; }  
+        th:nth-child(6) { width: 12%; text-align: center; } 
+        th { background-color: var(--bg-table-head); color: var(--text-table-head); }
+        a.back-link { text-decoration: none; color: var(--text-muted); font-weight: bold; }
+        .filter-box { background-color: var(--bg-box); padding: 15px; border-radius: 6px; margin-bottom: 20px; margin-top: 20px; display: flex; align-items: center; }
+        .filter-box form { display: flex; align-items: center; margin: 0; width: 100%; }
+        select { padding: 8px 12px; font-size: 16px; margin-left: 10px; min-width: 180px; cursor: pointer; border-radius: 4px; background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); box-sizing: border-box; appearance: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('index') }}" class="back-link">⬅ Zurück zur Übersicht</a>
+        
+        <h2 style="margin-top: 20px;">Detaillierter Druck-Nachweis (Admin)</h2>
+        
+        {% if has_alert %}
+        <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-left: 5px solid #dc3545; border-radius: 4px; margin-bottom: 20px; font-weight: bold;">
+            ⚠️ ALARM: In diesem Monat wurden Dokumente gedruckt, die auf der Schlagwort-Liste stehen! (Rot markiert)
+        </div>
+        {% endif %}
+        
+        <div class="filter-box">
+            <form method="GET" action="{{ url_for('admin_details') }}" style="margin: 0;">
+                <label for="month"><b>Monat auswählen:</b></label>
+                <select name="month" id="month" onchange="this.form.submit()">
+                    {% for m in months %}
+                        <option value="{{ m['month_val'] }}" {% if m['month_val'] == selected_month %}selected{% endif %}>
+                            {{ m['month_val'] }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Datum & Uhrzeit</th>
+                    <th>Nutzer</th>
+                    <th>Dokument</th>
+                    <th>Seiten</th>
+                    <th>Kosten</th>
+                    <th style="text-align: center;">Aktion</th> 
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in details %}
+                <tr {% if row['flagged'] %} style="background-color: #ffcccc;" {% endif %}>
+                    <td>{{ row['timestamp'][:16] }}</td>
+                    <td>{{ row['name'] }}</td>
+                    
+                    <td style="font-weight: {% if row['flagged'] %}bold{% else %}normal{% endif %};">
+                        {% if row['flagged'] %}🛑 {% endif %}{{ row['job_name'] }}
+                    </td>
+                    
+                    <td>{{ row['pages'] }}</td>
+                    <td>{{ "%.2f"|format(row['cost']) }} €</td>
+                    
+                    <td>
+                        <div style="display: flex; justify-content: center; gap: 5px;">
+                            {% if row['flagged'] %}
+                            <form action="{{ url_for('clear_alarm', job_id=row['id']) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Ist dieses Dokument geprüft und in Ordnung?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" style="background-color: #ffc107; color: black; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-weight: bold;" title="Alarm aufheben">
+                                    ✅ OK
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            <form action="{{ url_for('delete_job', job_id=row['id']) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Soll dieser Druckauftrag wirklich storniert werden?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-weight: bold;" title="Stornieren">
+                                    🗑️ Storno
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 20px; color: #666;">In diesem Monat wurden keine Druckaufträge gefunden.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

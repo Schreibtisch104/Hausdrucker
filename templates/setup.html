@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Drucker einrichten</title>
+    <style>
+        :root {
+            --bg-body: #f4f4f9;
+            --bg-container: #ffffff;
+            --text-main: #333333;
+            --link-color: #007bff;
+            
+            /* NEU: Variablen für Boxen, Code und Text */
+            --bg-box: #e9ecef;
+            --bg-code: #ffffff;
+            --border-color: #cccccc;
+            --text-muted: #6c757d;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-body: #121212;
+                --bg-container: #1e1e1e;
+                --text-main: #e0e0e0;
+                --link-color: #66b2ff;
+                
+                /* NEU: Dunkle Werte für Boxen, Code und Text */
+                --bg-box: #2a2d30;
+                --bg-code: #222222;
+                --border-color: #444444;
+                --text-muted: #aaaaaa;
+            }
+        }
+
+        /* --- HAUPT-LAYOUT --- */
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: var(--bg-body); color: var(--text-main); transition: background-color 0.3s, color 0.3s; } 
+        .container { max-width: 800px; margin: auto; background-color: var(--bg-container); padding: 20px; border-radius: 8px; line-height: 1.6; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        a { text-decoration: none; color: var(--link-color); }
+        
+        /* --- NEU: DYNAMISCHE ELEMENTE (Ersetzen die Inline-Styles) --- */
+        .instruction-box { background-color: var(--bg-box); padding: 20px; border-radius: 8px; }
+        hr { border: 0; border-top: 1px solid var(--border-color); margin: 30px 0; }
+        .muted-text { font-size: 0.85em; color: var(--text-muted); margin-top: 5px; font-style: italic; }
+        
+        /* Dynamisches Styling für Code-Schnipsel */
+        code { 
+            background-color: var(--bg-code); 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            border: 1px solid var(--border-color); 
+            color: var(--text-main);
+        }
+        .code-block { display: inline-block; margin: 5px 0; padding: 4px 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('index') }}" style="color: var(--text-muted); font-weight: bold;">⬅ Zurück zur Übersicht</a>
+
+        <h2 style="margin-top: 20px;">🖨️ Drucker einrichten (Anleitung)</h2>
+        
+        <div class="instruction-box">
+            
+            <h3>🪟 1. Einrichtung unter Windows</h3>
+            <p>Für Windows wird der offizielle Brother HL-3150CDW Treiber benötigt, damit Farbdruck und die korrekte Abrechnung funktionieren.</p>
+            
+            <div style="margin-bottom: 20px;">
+                <a href="{{ url_for('static', filename='Brother-Treiber.zip') }}" style="padding: 10px 15px; background: #17a2b8; color: white; border-radius: 5px; font-weight: bold; display: inline-block;">
+                    ⬇️ 1. Brother-Treiber herunterladen (.zip)
+                </a>
+                <p class="muted-text">Hinweis: Bitte die .zip-Datei nach dem Download entpacken!</p>
+            </div>
+
+            <ol start="2">
+                <li>Öffne die <b>Einstellungen</b> (Windows-Taste + I) ➔ <b>Bluetooth & Geräte</b> ➔ <b>Drucker & Scanner</b>.</li>
+                <li>Klicke auf <b>Gerät hinzufügen</b> und warte kurz, bis <i>"Der gewünschte Drucker ist nicht aufgelistet"</i> erscheint. Klicke dort auf <b>Manuell hinzufügen</b>.</li>
+                <li>Wähle den Punkt <i>"Freigegebenen Drucker über den Namen auswählen"</i>.</li>
+                <li>Kopiere diese Adresse und füge sie exakt so ein:<br>
+                    <code class="code-block">http://137.193.212.101:631/printers/Hausdrucker</code>
+                </li>
+                <li>Klicke auf <b>Weiter</b>. Wenn das Fenster zur Treiberauswahl erscheint, klicke auf <b>Datenträger...</b> und danach auf <b>Durchsuchen...</b>.</li>
+                <li>Navigiere in den entpackten Treiber-Ordner, wähle die Datei <b>Brother-Treiber.INF</b> aus und klicke auf Öffnen und OK.</li>
+                <li>Wähle aus der Liste der Modelle unbedingt den <b>Brother HL-3150CDW series</b> aus. Klicke auf Weiter und Fertig stellen.</li>
+                <li>Nun muss nur noch dein NFC-Tag und dein PC-Name vom IT-Admin im System hinterlegt werden.</li>
+            </ol>
+
+            <hr>
+
+            <h3>🍎 2. Einrichtung unter Mac (macOS)</h3>
+            <p>Auf dem Mac sind keine zusätzlichen Treiber-Downloads notwendig. macOS bringt alle benötigten Protokolle nativ mit.</p>
+            <ol>
+                <li>Öffne die <b>Systemeinstellungen</b> ➔ <b>Drucker & Scanner</b>.</li>
+                <li>Klicke auf den Button <b>Drucker, Scanner oder Fax hinzufügen...</b>.</li>
+                <li>Klicke oben im Fenster auf das <b>Weltkugel-Symbol (IP)</b>.</li>
+                <li>Fülle die Felder genau wie folgt aus:
+                    <ul style="margin-top: 5px; list-style-type: square;">
+                        <li><b>Adresse:</b> <code>137.193.212.101:631</code></li>
+                        <li><b>Protokoll:</b> <code>AirPrint</code></li>
+                        <li><b>Warteliste:</b> <code>printers/Hausdrucker</code></li>
+                    </ul>
+                </li>
+                <li>Nun muss nur noch dein NFC-Tag und dein PC-Name vom IT-Admin im System hinterlegt werden.</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,6 @@
+Flask
+pycups
+evdev
+fpdf2
+python-dotenv
+Flask-WTF

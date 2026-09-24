@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Nutzungsbedingungen & Datenschutz</title>
+    <style>
+        :root {
+            --bg-body: #f4f4f9;
+            --bg-container: #ffffff;
+            --text-main: #333333;
+            --highlight-bg: #e9ecef;
+            --h3-color: #0056b3;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-body: #121212;
+                --bg-container: #1e1e1e;
+                --text-main: #e0e0e0;
+                --highlight-bg: #2a2d30;
+                --h3-color: #66b2ff; /* Helleres Blau für besseren Kontrast im Dark Mode */
+            }
+        }
+
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: var(--bg-body); color: var(--text-main); line-height: 1.6; transition: 0.3s; } 
+        .container { max-width: 800px; margin: auto; background-color: var(--bg-container); padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { border-bottom: 2px solid #007bff; padding-bottom: 10px; margin-bottom: 20px; }
+        h3 { color: var(--h3-color); margin-top: 30px; }
+        ul { margin-bottom: 20px; }
+        li { margin-bottom: 8px; }
+        .highlight-box { background-color: var(--highlight-bg); padding: 15px; border-left: 5px solid #17a2b8; border-radius: 4px; margin: 20px 0; font-size: 0.95em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('index') }}" style="color: #666; text-decoration: none; font-weight: bold;">⬅ Zurück zur Übersicht</a>
+        
+        <h1>📜 Nutzungs- und Datenschutzbedingungen</h1>
+        <p>Mit der Inanspruchnahme der internen Druckdienste sowie der Authentifizierung via NFC-Tag erklären Sie sich mit den nachfolgenden Nutzungs- und Datenschutzbedingungen für den Betrieb und die Abrechnung einverstanden.</p>
+
+        <h3>1. Datenerhebung und Zweckbindung</h3>
+        <p>Zur Gewährleistung einer transparenten und verursachungsgerechten Abrechnung der Druckkosten werden bei jedem Druckauftrag folgende Daten systemseitig erfasst:</p>
+        <ul>
+            <li>Datum und Uhrzeit des Druckauftrags</li>
+            <li>Ihr im System hinterlegter Benutzername</li>
+            <li>Der Hostname des Endgeräts (PC-Name) sowie die eindeutige ID (UID) Ihres NFC-Tags</li>
+            <li>Der Dateiname des verarbeiteten Dokuments</li>
+            <li>Die Anzahl der gedruckten Seiten sowie die daraus resultierenden Kosten</li>
+        </ul>
+        <p><i>Diese Daten werden <b>ausschließlich</b> zur technischen Leistungszuordnung und der monatlichen Kostenabrechnung verarbeitet. Eine inhaltliche Auswertung oder die Weitergabe an unbefugte Dritte ist strikt ausgeschlossen.</i></p>
+
+        <h3>2. Datenspeicherung und Löschfristen</h3>
+        <p>Gemäß dem Grundsatz der Datenminimierung unterliegen die erfassten Daten folgenden automatisierten Löschfristen:</p>
+        <ul>
+            <li><b>Verbindungs- und Inhaltsdaten (z. B. Dokumentennamen):</b> Diese werden <b>einen Monat</b> nach Bereitstellung der jeweiligen Abrechnung restlos gelöscht. Diese Frist dient ausschließlich der Klärung etwaiger Einwände gegen die Abrechnung.</li>
+            <li><b>Abrechnungsrelevante Metadaten (Kosten & Seitenanzahl):</b> Diese werden nach Ablauf von <b>sechs Monaten</b> unwiderruflich gelöscht.</li>
+            <li><b>Stammdaten (Benutzerprofile, PC-Namen, NFC-Tags-UIDs):</b> Diese bleiben gespeichert, <b>solange</b> Sie als aktiver Nutzer im System registriert sind. Bei Beendigung der Nutzung werden diese Daten umgehend aus der Datenbank entfernt.</li>
+        </ul>
+
+        <h3>3. Kostenstruktur und Abrechnungsmodalitäten</h3>
+        <div class="highlight-box">
+            <b>⚠️ Wichtiger Hinweis zum Duplex-Druck (beidseitiger Druck):</b><br>
+            Die Abrechnung basiert technisch bedingt auf den mechanischen Durchläufen des Druckers, da diese maßgeblich für Verschleiß und Materialverbrauch sind. Wird beispielsweise ein Dokument mit drei logischen Seiten im Duplex-Modus gedruckt, zieht der Drucker zwei physische Blätter ein (Vorder- und Rückseite) und berechnet folglich <b>vier Seiten</b>. Um dies zu vermeiden, ist der Duplex-Druck in den Druckereinstellungen Ihres lokalen Endgeräts selbstständig zu deaktivieren.
+        </div>
+        <ul>
+            <li>Der Seitenpreis richtet sich nach dem jeweils aktuell im System hinterlegten und kommunizierten Tarif.</li>
+            <li>Die Begleichung der Abrechnung erfolgt über die Hauskasse.</li>
+        </ul>
+
+        <h3>4. Nutzerpflichten und Haftungsbeschränkung</h3>
+        <ul>
+            <li><b>NFC-Tags:</b> Die registrierten Authentifizierungskarten sind streng personengebunden und dürfen unter keinen Umständen an Dritte weitergegeben werden.</li>
+            <li><b>Verfügbarkeit:</b> Ein Rechtsanspruch auf ununterbrochene Verfügbarkeit (24/7-Betrieb) der Systeme oder auf sofortige Störungsbehebung besteht nicht.</li>
+            <li><b>Fehldrucke:</b> Für Fehldrucke, die auf fehlerhafte Formatierungen, leere Verbrauchsmaterialien (Toner) oder Papierstaus zurückzuführen sind, wird grundsätzlich keine Haftung übernommen. Nachgewiesene technische Fehlfunktionen können nach umgehender Meldung an den Administrator auf Kulanzbasis storniert werden.</li>
+            <li><b>Inhalte:</b> Die Vervielfältigung von illegalen, extremistischen oder urheberrechtlich geschützten Materialien (insbesondere für gewerbliche Zwecke) über diese Infrastruktur ist strikt untersagt.</li>
+        </ul>
+
+        <h3>5. Sanktionen bei Missbrauch</h3>
+        <p>Da dieser Druckdienst ausschließlich von Soldatinnen und Soldaten genutzt wird, behält sich die Administration ausdrücklich das Recht vor, bei schwerwiegenden oder wiederholten Verstößen gegen diese Nutzungsbedingungen angemessene Maßnahmen zu ergreifen. Dies umfasst insbesondere:</p>
+        <ul>
+            <li>Den sofortigen, temporären oder dauerhaften Ausschluss von der Nutzung der Druckdienste (Sperrung der NFC-Tags und Deaktivierung des Benutzerprofils).</li>
+            <li>Die Geltendmachung von zivilrechtlichen Schadensersatzansprüchen bei mutwilliger Beschädigung der Hardware, vorsätzlichem Verschleiß oder der Manipulation des Abrechnungssystems.</li>
+            <li>Die Meldung an den zuständigen Disziplinarvorgesetzten sowie die Einleitung wehrdisziplinarrechtlicher Schritte bei der Anfertigung illegaler, strafrechtlich relevanter oder anderweitig untersagter Kopien sowie bei kameradschaftswidrigem Verhalten (z. B. vorsätzlichem Betrug bei der Abrechnung).</li>
+        </ul>
+
+    </div>
+</body>
+</html>

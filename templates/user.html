@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Profil: {{ user['name'] }}</title>
+    <style>
+        :root {
+            --bg-body: #f4f4f9;
+            --bg-container: #ffffff;
+            --text-main: #333333;
+            --bg-section: #f9f9f9;
+            --border-color: #dddddd;
+            --input-bg: #ffffff;
+            --input-border: #cccccc;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-body: #121212;
+                --bg-container: #1e1e1e;
+                --text-main: #e0e0e0;
+                --bg-section: #2a2d30;
+                --border-color: #444444;
+                --input-bg: #2c2c2c;
+                --input-border: #555555;
+            }
+        }
+
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: var(--bg-body); color: var(--text-main); transition: 0.3s; } 
+        .container { max-width: 600px; margin: auto; background-color: var(--bg-container); padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); } 
+        .section { background-color: var(--bg-section); padding: 15px; margin-bottom: 20px; border: 1px solid var(--border-color); border-radius: 5px; } 
+        input { padding: 8px; width: 65%; background-color: var(--input-bg); color: var(--text-main); border: 1px solid var(--input-border); border-radius: 4px; } 
+        button { padding: 8px 15px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('index') }}" style="color: #666; text-decoration: none; font-weight: bold;">⬅ Zurück</a>
+        <h1>👤 {{ user['name'] }}</h1>
+        <p><b>Jahrgang:</b> {{ user['year'] }} | <b>Raum:</b> {{ user['room'] }}</p>
+
+        {% if user['status'] == 'blocked' %}
+        <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-left: 5px solid #dc3545; border-radius: 4px; margin-bottom: 20px; font-weight: bold;">
+            ⛔ Dieser Nutzer ist aktuell durch einen Administrator gesperrt.
+        </div>
+        {% endif %}
+        
+        <div class="section">
+            <h3>🖥️ PC-Namen</h3>
+            
+            <ul style="list-style-type: none; padding: 0;">
+                {% for pc in pc_names %}
+                <li style="display: flex; justify-content: space-between; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid #eee;">
+                    {{ pc['pc_name'] }}
+                    {% if session.logged_in %}
+                    <form action="{{ url_for('delete_pc', pc_id=pc['id'], user_id=user['id']) }}" method="POST" style="margin: 0;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" style="background: #dc3545; padding: 4px 8px; font-size: 0.8em;">🗑️</button>
+                    </form>
+                    {% endif %}
+                </li>
+                {% else %}<li style="color: #666;">Kein PC hinterlegt.</li>{% endfor %}
+            </ul>
+            
+            {% if session.logged_in %}
+            <form action="{{ url_for('add_pc', user_id=user['id']) }}" method="POST" style="margin-top: 15px;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    
+                    <input type="text" id="pc_input" name="pc_name" placeholder="PC-Name tippen/auslesen..." required style="flex-grow: 1; width: auto;">
+                    
+                    <button type="button" onclick="fetchLastPC()" style="padding: 8px 12px; background-color: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                        💻 Unbekannten PC suchen
+                    </button>
+                    
+                    <button type="submit" style="padding: 8px 12px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        ➕ Hinzufügen
+                    </button>
+                </div>
+            </form>
+
+            <script>
+                function fetchLastPC() {
+                    fetch('{{ url_for("get_last_pc") }}')
+                        .then(response => response.text())
+                        .then(data => {
+                            if(data) {
+                                // Trägt den PC-Namen ins Feld ein
+                                document.getElementById('pc_input').value = data;
+                                // Kurzes visuelles Feedback
+                                document.getElementById('pc_input').style.backgroundColor = '#d4edda';
+                                setTimeout(() => {
+                                    document.getElementById('pc_input').style.backgroundColor = 'white';
+                                }, 500);
+                            } else {
+                                alert("Es befindet sich aktuell kein Druckauftrag von einem unbekannten PC in der Warteschlange!");
+                            }
+                        });
+                }
+            </script>
+            {% endif %}
+        </div>
+
+        <div class="section">
+            <h3>💳 NFC-Karten (UIDs)</h3>
+            
+            <ul style="list-style-type: none; padding: 0;">
+                {% for uid in uids %}
+                <li style="display: flex; justify-content: space-between; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid #eee;">
+                    {{ uid['uid_string'] }}
+                    {% if session.logged_in %}
+                    <form action="{{ url_for('delete_uid', uid_id=uid['id'], user_id=user['id']) }}" method="POST" style="margin: 0;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" style="background: #dc3545; padding: 4px 8px; font-size: 0.8em;">🗑️</button>
+                    </form>
+                    {% endif %}
+                </li>
+                {% else %}<li style="color: #666;">Keine Karte hinterlegt.</li>{% endfor %}
+            </ul>
+            
+            {% if session.logged_in %}
+            <form action="{{ url_for('add_uid', user_id=user['id']) }}" method="POST" style="margin-top: 15px;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    
+                    <input type="text" id="nfc_input" name="uid_string" placeholder="NFC-Code tippen/auslesen..." required style="flex-grow: 1; width: auto;">
+                    
+                    <button type="button" onclick="fetchLastNFC()" style="padding: 8px 12px; background-color: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                        📡 Karte auslesen
+                    </button>
+                    
+                    <button type="submit" style="padding: 8px 12px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        ➕ Hinzufügen
+                    </button>
+                </div>
+            </form>
+
+            <script>
+                function fetchLastNFC() {
+                    fetch('{{ url_for("get_last_nfc") }}')
+                        .then(response => response.text())
+                        .then(data => {
+                            if(data) {
+                                // Trägt die Nummer ins Feld ein
+                                document.getElementById('nfc_input').value = data;
+                                // Kurzes visuelles Feedback (Feld wird kurz grün)
+                                document.getElementById('nfc_input').style.backgroundColor = '#d4edda';
+                                setTimeout(() => {
+                                    document.getElementById('nfc_input').style.backgroundColor = 'white';
+                                }, 500);
+                            } else {
+                                alert("Bisher wurde noch keine Karte gescannt!");
+                            }
+                        });
+                }
+            </script>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
